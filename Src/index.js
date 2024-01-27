@@ -1,6 +1,7 @@
 const { app } = require("./App");
 const connectDb = require("./db/index");
 const PORT = process.env.PORT;
+
 connectDb()
     .then(() => {
         app.listen(PORT, () =>

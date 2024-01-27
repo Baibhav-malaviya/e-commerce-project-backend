@@ -17,4 +17,16 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" })); //extended: true
 app.use(express.static("public")); // for serving the static files
 app.use(cookieParser());
 
+const authRouter = require("./routes/auth.route");
+const productRouter = require("./routes/product.route");
+const cartRouter = require("./routes/cart.route");
+const orderRouter = require("./routes/order.route");
+const userRouter = require("./routes/user.route");
+
+app.use("/api/auth", authRouter);
+app.use("/api/products", productRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/orders", orderRouter);
+app.use("/api/user", userRouter);
+
 module.exports = { app };
