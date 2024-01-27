@@ -1,8 +1,9 @@
-import { v2 as cloudinary } from "cloudinary";
-import dotenv from "dotenv";
+// import { v2 as cloudinary } from "cloudinary";
+const cloudinary = require("cloudinary").v2;
+// const dotenv = require("dotenv");
 
-import fs from "fs";
-dotenv.config({ path: "./.env" });
+const fs = require("fs");
+// dotenv.config({ path: "./.env" });
 
 // cloudinary.config({
 //     cloud_name: "baibhavmalaviya",
@@ -42,4 +43,4 @@ const deleteFromCloudinary = async (url) => {
     }
 };
 
-export { uploadOnCloudinary, deleteFromCloudinary };
+module.exports = { uploadOnCloudinary, deleteFromCloudinary };

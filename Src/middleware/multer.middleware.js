@@ -1,4 +1,4 @@
-import multer from "multer";
+const multer = require("multer");
 
 //*Multer is used to upload the files to the folder(eg. ./public/temp) from local System and cloudinary uses this path to upload on the cloudinary cloud.
 
@@ -11,4 +11,6 @@ const storage = multer.diskStorage({
     },
 });
 
-export const upload = multer({ storage: storage });
+const upload = multer({ storage: storage });
+
+module.exports = { upload };

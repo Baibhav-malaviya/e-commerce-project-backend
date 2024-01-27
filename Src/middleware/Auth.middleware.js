@@ -1,7 +1,7 @@
-import { User } from "../models/user.model.js";
-import JWT from "jsonwebtoken";
+const User = require("../models/user.model");
+const JWT = require("jsonwebtoken");
 
-export const verifyJWT = async (req, res, next) => {
+const verifyJWT = async (req, res, next) => {
     try {
         const token =
             req.cookies?.accessToken ||
@@ -10,7 +10,7 @@ export const verifyJWT = async (req, res, next) => {
         const decodedUser = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
         const user = await User.findById(decodedUser._id).select(
-            "-password -refreshToken",
+            "-password -refreshToken"
         );
 
         if (!user) return res.status(403).json({ message: "Invalid token" });
@@ -18,8 +18,12 @@ export const verifyJWT = async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        return res
-            .status(500)
-            .json({ message: error?.message || "Something went wrong" });
+        return res.status(500).json({
+            message:
+                error?.message + " user not logged in." ||
+                "Something went wrong",
+        });
     }
 };
+
+module.exports = { verifyJWT };
