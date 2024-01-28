@@ -29,7 +29,7 @@ const productSchema = new Schema(
             type: [String], // Array of strings for multiple tags
             default: [],
         },
-        imageUrl: {
+        productImage: {
             type: String,
             required: true,
         },
@@ -41,7 +41,7 @@ const productSchema = new Schema(
         reviews: [
             {
                 user: {
-                    type: mongoose.Schema.Types.ObjectId,
+                    type: Schema.Types.ObjectId,
                     ref: "User",
                 },
                 rating: {
