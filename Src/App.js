@@ -6,7 +6,8 @@ require("dotenv").config();
 
 app.use(
     cors({
-        origin: process.env.CORS_ORIGIN,
+        // origin: process.env.CORS_ORIGIN,
+        origin: "http://localhost:5173",
         methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
         credentials: true, // Enable cookies and other credentials to be included in CORS requests
     })
@@ -22,11 +23,13 @@ const productRouter = require("./routes/product.route");
 const cartRouter = require("./routes/cart.route");
 const orderRouter = require("./routes/order.route");
 const userRouter = require("./routes/user.route");
+const wishListRouter = require("./routes/wishlist.route");
 
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/user", userRouter);
+app.use("/api/wishlist", wishListRouter);
 
 module.exports = { app };

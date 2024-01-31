@@ -8,11 +8,12 @@ const {
 } = require("../controllers/cart.controller");
 
 const router = Router();
+router.use(verifyJWT);
 
-router.route("/").get(verifyJWT, getCart);
+router.route("/").get(getCart);
 
-router.route("/add/:productId").post(verifyJWT, addToCart);
+router.route("/add/:productId").post(addToCart);
 
-router.route("/remove/:productId").delete(verifyJWT, deleteFromCart);
+router.route("/remove/:productId").delete(deleteFromCart);
 
 module.exports = router;

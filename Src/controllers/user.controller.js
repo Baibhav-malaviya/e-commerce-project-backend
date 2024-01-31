@@ -95,4 +95,10 @@ const logout = async (req, res) => {
         .json({ message: "logout successfully" });
 };
 
-module.exports = { signup, login, logout };
+const getUser = async (req, res) => {
+    return res
+        .status(200)
+        .json({ message: "User details fetched successfully", data: req.user });
+};
+
+module.exports = { signup, login, logout, getUser };
