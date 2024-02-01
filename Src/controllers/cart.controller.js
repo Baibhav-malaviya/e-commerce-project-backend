@@ -1,3 +1,4 @@
+const { Types } = require("mongoose");
 const Cart = require("../models/cart.model");
 
 const addToCart = async (req, res) => {
@@ -52,7 +53,20 @@ const getCart = async (req, res) => {
     if (!user)
         return res.status(403).json({ message: "You must be logged in." });
 
-    const carts = await Cart.find({ user: user._id });
+    // const carts = await Cart.find({ user: user._id });
+    const carts = await Cart.aggregate([
+        {
+            $match: { user: new Types.ObjectId(user._id) },
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "items.product",
+                foreignField: "_id",
+                as: "items",
+            },
+        },
+    ]);
 
     return res
         .status(403)

@@ -1,9 +1,23 @@
+const { Types } = require("mongoose");
 const Wishlist = require("../models/wishlist.model");
 
 const getWishlist = async (req, res) => {
     const userId = req.user._id;
 
-    const wishlist = await Wishlist.find({ user: userId });
+    // const wishlist = await Wishlist.find({ user: userId });
+    const wishlist = await Wishlist.aggregate([
+        {
+            $match: { user: new Types.ObjectId(userId) },
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "items.product",
+                foreignField: "_id",
+                as: "items",
+            },
+        },
+    ]);
 
     return res
         .status(200)

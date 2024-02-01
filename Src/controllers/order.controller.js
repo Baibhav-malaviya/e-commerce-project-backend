@@ -1,4 +1,5 @@
 const Order = require("../models/order.model");
+const { Types } = require("mongoose");
 
 const createOrder = async (req, res) => {
     const userId = req.user._id;
@@ -41,7 +42,25 @@ const getOrder = async (req, res) => {
     const userId = req.user._id;
     if (!userId) return res.status(403).json({ message: "User not logged in" });
 
-    const orders = await Order.find({ user: userId });
+    // const orders = await Order.find({ user: userId });
+    const orders = await Order.aggregate([
+        {
+            $match: { user: new Types.ObjectId(userId) },
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "product",
+            },
+        },
+        {
+            $addFields: {
+                product: { $arrayElemAt: ["$product", 0] },
+            },
+        },
+    ]);
 
     return res
         .status(200)
@@ -56,7 +75,23 @@ const getOrderById = async (req, res) => {
     if (!orderId)
         return res.status(403).json({ message: "Order id not found" });
 
-    const order = await Order.findById(orderId);
+    // const order = await Order.findById(orderId);
+    const order = await Order.aggregate([
+        { $match: { _id: new Types.ObjectId(orderId) } },
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "product",
+            },
+        },
+        {
+            $addFields: {
+                product: { $arrayElemAt: ["$product", 0] },
+            },
+        },
+    ]);
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
@@ -66,13 +101,34 @@ const getOrderById = async (req, res) => {
 };
 
 const getCurrentOrder = async (req, res) => {
-    //todo It is not working but controller is fine but there is problem in router
     const userId = req.user._id;
 
-    const currentOrders = await Order.find({
-        user: userId,
-        orderStatus: { $nin: ["delivered", "cancelled"] },
-    });
+    // const currentOrders = await Order.find({
+    //     user: userId,
+    //     orderStatus: { $nin: ["delivered", "cancelled"] },
+    // });
+
+    const currentOrders = await Order.aggregate([
+        {
+            $match: {
+                user: new Types.ObjectId(userId),
+                orderStatus: { $nin: ["delivered", "cancelled"] },
+            },
+        },
+        {
+            $lookup: {
+                from: "products",
+                localField: "product",
+                foreignField: "_id",
+                as: "product",
+            },
+        },
+        {
+            $addFields: {
+                product: { $arrayElemAt: ["$product", 0] },
+            },
+        },
+    ]);
 
     if (!currentOrders)
         return res
