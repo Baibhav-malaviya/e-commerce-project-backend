@@ -1,4 +1,5 @@
 const { Schema, model } = require("mongoose");
+var aggregatePaginate = require("mongoose-aggregate-paginate-v2");
 
 const wishlistItemSchema = new Schema({
     product: {
@@ -26,6 +27,8 @@ const wishlistSchema = new Schema(
         timestamps: true,
     }
 );
+
+wishlistSchema.plugin(aggregatePaginate);
 
 const Wishlist = model("Wishlist", wishlistSchema);
 
