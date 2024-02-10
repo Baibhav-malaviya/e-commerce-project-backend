@@ -1,5 +1,8 @@
 const User = require("../models/user.model");
-const { uploadOnCloudinary } = require("../utils/cloudinary");
+const {
+    uploadOnCloudinary,
+    deleteFromCloudinary,
+} = require("../utils/cloudinary");
 
 const signup = async (req, res) => {
     const { userName, fullName, email, phone, password } = req.body;
@@ -101,4 +104,66 @@ const getUser = async (req, res) => {
         .json({ message: "User details fetched successfully", data: req.user });
 };
 
-module.exports = { signup, login, logout, getUser };
+const updateProfileImage = async (req, res) => {
+    const { _id: userId, profileImage: profileImageUrl } = req.user;
+    const profileImageLocalPath = req.file?.path;
+
+    if (!profileImageLocalPath)
+        return res.status(403).json({ message: "Error in uploading locally." });
+
+    const profileImage = await uploadOnCloudinary(profileImageLocalPath);
+
+    if (!profileImage || !profileImage.url)
+        return res
+            .status(403)
+            .json({ message: "Error uploading image to Cloudinary." });
+
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { profileImage: profileImage?.url || "" },
+        { new: true } // To return the updated document
+    );
+
+    //delete the prev profile image from cloudinary
+    await deleteFromCloudinary(profileImageUrl);
+
+    return res.status(200).json({
+        message: "ProfileImage updated successfully",
+        data: updatedUser,
+    });
+};
+
+const updateAccountDetails = async (req, res) => {
+    const { fullName, email, userName, phone } = req.body;
+
+    if (!fullName && !email && !userName && !phone) {
+        return res.status(403).json({ message: "Anyone of then is required" });
+    }
+
+    const updateFields = {};
+    if (fullName) updateFields.fullName = fullName;
+    if (email) updateFields.email = email;
+    if (userName) updateFields.userName = userName;
+    if (phone) updateFields.phone = phone;
+
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: updateFields,
+        },
+        { new: true }
+    ).select(" -password");
+
+    return res
+        .status(200)
+        .json({ message: "User updated successfully", data: updatedUser });
+};
+
+module.exports = {
+    signup,
+    login,
+    logout,
+    getUser,
+    updateProfileImage,
+    updateAccountDetails,
+};
