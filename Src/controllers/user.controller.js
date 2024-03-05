@@ -22,7 +22,10 @@ const signup = async (req, res) => {
             .status(403)
             .json({ message: "Error in finding the local path" });
 
-    const profileImage = await uploadOnCloudinary(profileImageLocalPath);
+    const profileImage = await uploadOnCloudinary(
+        profileImageLocalPath,
+        "user"
+    );
 
     if (!profileImage)
         return res

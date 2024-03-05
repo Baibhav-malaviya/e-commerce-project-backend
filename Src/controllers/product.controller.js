@@ -22,7 +22,10 @@ const addProduct = async (req, res) => {
                 "something wrong in finding the local path of the product image",
         });
 
-    const productImage = await uploadOnCloudinary(productImageLocalPath);
+    const productImage = await uploadOnCloudinary(
+        productImageLocalPath,
+        "products"
+    );
 
     if (!productImage)
         return res.status(403).json({

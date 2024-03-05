@@ -54,16 +54,55 @@ const getCart = async (req, res) => {
         return res.status(403).json({ message: "You must be logged in." });
 
     // const carts = await Cart.find({ user: user._id });
+    // const carts = await Cart.aggregate([
+    //     {
+    //         $match: { user: new Types.ObjectId(user._id) },
+    //     },
+    //     {
+    //         $lookup: {
+    //             from: "products",
+    //             localField: "items.product",
+    //             foreignField: "_id",
+    //             as: "items",
+    //         },
+    //     },
+    // ]);
     const carts = await Cart.aggregate([
         {
             $match: { user: new Types.ObjectId(user._id) },
+        },
+        {
+            $unwind: "$items", // unwind the items array
         },
         {
             $lookup: {
                 from: "products",
                 localField: "items.product",
                 foreignField: "_id",
-                as: "items",
+                as: "product", // save the lookup result in a temporary field
+            },
+        },
+        {
+            $unwind: "$product", // unwind the product array
+        },
+        {
+            $addFields: {
+                items: {
+                    $mergeObjects: [
+                        "$product",
+                        { quantity: "$items.quantity" },
+                    ],
+                },
+            },
+        },
+        {
+            $group: {
+                _id: "$_id",
+                user: { $first: "$user" },
+                createdAt: { $first: "$createdAt" },
+                updatedAt: { $first: "$updatedAt" },
+                items: { $push: "$items" }, // reconstruct the items array with quantity and product details as siblings
+                __v: { $first: "$__v" },
             },
         },
     ]);
