@@ -1,4 +1,5 @@
 const Product = require("../models/products.model");
+const Fuse = require("fuse.js");
 const {
     uploadOnCloudinary,
     deleteFromCloudinary,
@@ -106,9 +107,72 @@ const deleteProductById = async (req, res) => {
     });
 };
 
+const getProductByQuery = async (req, res) => {
+    try {
+        const { query } = req.query;
+        console.log("QUERY: ", query);
+        if (!query) return res.status(404).json({ message: "query not found" });
+
+        // Fetch all products from the database
+
+        const allProducts = await Product.find();
+        if (!allProducts)
+            return res.status(404).json({ message: "Product not found" });
+
+        // Configure Fuse.js options for searching
+        const options = {
+            keys: ["name", "description", "category", "tags"], // Fields to search in
+            includeScore: true, // Include search score in results
+            threshold: 0.3, // Adjust matching threshold as needed
+        };
+
+        // Create a new Fuse instance with products and options
+        const fuse = new Fuse(allProducts, options);
+
+        // Perform the search
+        const searchResults = fuse.search(query);
+
+        // Extract the item property from each search result
+        const products = searchResults.map((result) => result.item);
+
+        return res.status(200).json({
+            message: "Products fetched on the basis of query",
+            data: products,
+        });
+    } catch (error) {
+        console.error("Error searching products:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
+const getProductByCategory = async (req, res) => {
+    try {
+        const { query } = req.query;
+
+        // Perform the search directly in the database using Mongoose queries
+        const products = await Product.find({
+            $or: [
+                { name: { $regex: query, $options: "i" } }, // Case-insensitive search for product name
+                { description: { $regex: query, $options: "i" } }, // Case-insensitive search for product description
+                { category: { $regex: query, $options: "i" } }, // Case-insensitive search for product category
+                { tags: { $in: [query] } }, // Search for products with the specified tag
+            ],
+        });
+
+        return res
+            .status(200)
+            .json({ message: "Fetched product on category", data: products });
+    } catch (error) {
+        console.error("Error searching products:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 module.exports = {
     addProduct,
     getAllProduct,
     getProductById,
     deleteProductById,
+    getProductByQuery,
+    getProductByCategory,
 };

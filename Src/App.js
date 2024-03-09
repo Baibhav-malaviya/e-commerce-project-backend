@@ -24,6 +24,7 @@ const cartRouter = require("./routes/cart.route");
 const orderRouter = require("./routes/order.route");
 const userRouter = require("./routes/user.route");
 const wishListRouter = require("./routes/wishlist.route");
+const paymentRouter = require("./routes/payment.route");
 
 app.use("/api/auth", authRouter);
 app.use("/api/products", productRouter);
@@ -31,5 +32,6 @@ app.use("/api/cart", cartRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/user", userRouter);
 app.use("/api/wishlist", wishListRouter);
+app.use("/api/payment", paymentRouter);
 
 module.exports = { app };

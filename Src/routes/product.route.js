@@ -7,8 +7,13 @@ const {
     getAllProduct,
     getProductById,
     deleteProductById,
+    getProductByQuery,
+    getProductByCategory,
 } = require("../controllers/product.controller");
 const { upload } = require("../middleware/multer.middleware");
+
+router.route("/searchByQuery").get(verifyJWT, getProductByQuery);
+router.route("/searchByCategory").get(verifyJWT, getProductByCategory);
 
 router
     .route("/")
