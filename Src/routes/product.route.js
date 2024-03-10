@@ -9,9 +9,15 @@ const {
     deleteProductById,
     getProductByQuery,
     getProductByCategory,
+    getRelatedProduct,
+    getMultiRelatedProducts,
 } = require("../controllers/product.controller");
 const { upload } = require("../middleware/multer.middleware");
 
+router
+    .route("/getMultiRelatedProducts")
+    .get(verifyJWT, getMultiRelatedProducts);
+router.route("/getRelatedProduct").get(verifyJWT, getRelatedProduct);
 router.route("/searchByQuery").get(verifyJWT, getProductByQuery);
 router.route("/searchByCategory").get(verifyJWT, getProductByCategory);
 

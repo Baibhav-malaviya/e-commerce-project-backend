@@ -57,6 +57,12 @@ const addProduct = async (req, res) => {
 };
 
 const getAllProduct = async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+    };
+    const result = await Product.aggregatePaginate({}, options);
     const allProduct = await Product.find();
 
     if (!allProduct)
@@ -65,7 +71,7 @@ const getAllProduct = async (req, res) => {
             .json({ message: "something wring in fetching all the products" });
     return res.status(200).json({
         message: "All the products fetched successfully",
-        data: allProduct,
+        data: result,
     });
 };
 
@@ -168,6 +174,67 @@ const getProductByCategory = async (req, res) => {
     }
 };
 
+const getRelatedProduct = async (req, res) => {
+    try {
+        const { productId } = req.query;
+
+        // Fetch the product from the database based on the provided productId
+        const product = await Product.findById(productId);
+
+        // If the product does not exist, return an error
+        if (!product) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        // Find related products by both tags and category
+        const relatedProducts = await Product.find({
+            category: product.category,
+            _id: { $ne: productId }, // Exclude the current product
+        }).limit(5); // Limit the number of related products
+
+        return res.status(200).json({
+            message: "Related products fetched successfully",
+            data: relatedProducts,
+        });
+    } catch (error) {
+        console.error("Error retrieving related products:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+const getMultiRelatedProducts = async (req, res) => {
+    try {
+        const { productIds } = req.query;
+        // return res.status(200).json({ productIds });
+
+        // If no product IDs are provided, return an error
+        if (
+            !productIds ||
+            !Array.isArray(productIds) ||
+            productIds.length === 0
+        ) {
+            return res.status(400).json({ error: "No product IDs provided" });
+        }
+
+        // Fetch all products from the database based on the provided product IDs
+        const products = await Product.find({ _id: { $in: productIds } });
+
+        // Aggregate categories from all the products
+        const categories = products.map((product) => product.category);
+
+        // Find related products based on aggregated categories
+        const relatedProducts = await Product.find({
+            category: { $in: categories }, // Find products with matching categories
+            _id: { $nin: productIds }, // Exclude the products already in the cart or wishlist
+        }).limit(5); // Limit the number of related products
+
+        res.json(relatedProducts);
+    } catch (error) {
+        console.error("Error retrieving related products:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
 module.exports = {
     addProduct,
     getAllProduct,
@@ -175,4 +242,6 @@ module.exports = {
     deleteProductById,
     getProductByQuery,
     getProductByCategory,
+    getRelatedProduct,
+    getMultiRelatedProducts,
 };
