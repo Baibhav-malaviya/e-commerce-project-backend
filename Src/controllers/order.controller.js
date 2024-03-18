@@ -1,5 +1,7 @@
 const Order = require("../models/order.model");
+const User = require("../models/user.model");
 const { Types } = require("mongoose");
+const sendEmail = require("../utils/nodeMailer");
 
 const createOrder = async (req, res) => {
     const userId = req.user._id;
@@ -33,6 +35,9 @@ const createOrder = async (req, res) => {
         return res
             .status(403)
             .json({ message: "Something wrong in ordering the product" });
+
+    const { email: currentUserMail } = await User.findById();
+    sendEmail(currentUserMail, "Order created successfully");
 
     return res
         .status(200)

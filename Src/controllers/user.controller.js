@@ -1,5 +1,6 @@
 const User = require("../models/user.model");
 const { uploadOnCloudinary } = require("../utils/cloudinary");
+const { sendRegistrationConfirmationEmail } = require("../utils/nodeMailer");
 
 const signup = async (req, res) => {
     const { userName, fullName, email, phone, password } = req.body;
@@ -42,6 +43,8 @@ const signup = async (req, res) => {
     });
 
     const createdUser = await User.findById(user._id).select("-password");
+
+    await sendRegistrationConfirmationEmail(user);
 
     return res
         .status(200)
