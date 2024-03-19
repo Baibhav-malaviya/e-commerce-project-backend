@@ -11,6 +11,7 @@ const {
     getProductByCategory,
     getRelatedProduct,
     getMultiRelatedProducts,
+    addProductToFashionHub,
 } = require("../controllers/product.controller");
 const { upload } = require("../middleware/multer.middleware");
 
@@ -24,7 +25,12 @@ router.route("/searchByCategory").get(verifyJWT, getProductByCategory);
 router
     .route("/")
     .post(verifyJWT, upload.single("productImage"), addProduct)
-    .get(verifyJWT, getAllProduct);
+    .get(getAllProduct);
+
+router
+    .route("/fashionHub")
+    .post(verifyJWT, upload.array("productImages", 4), addProductToFashionHub);
+// .get(verifyJWT, getAllFashionHubProduct);
 
 router
     .route("/:id")

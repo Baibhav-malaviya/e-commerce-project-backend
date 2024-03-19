@@ -1,4 +1,5 @@
 const Product = require("../models/products.model");
+const FashionHubProduct = require("../models/fashionHubProduct.model");
 const Fuse = require("fuse.js");
 const {
     uploadOnCloudinary,
@@ -235,6 +236,59 @@ const getMultiRelatedProducts = async (req, res) => {
     }
 };
 
+const addProductToFashionHub = async (req, res) => {
+    const { name, description, price, stock, category, tags } = req.body;
+
+    console.log(req.body);
+
+    if (!name || !description || !price || !stock || !category)
+        return res
+            .status(403)
+            .json({ message: "All the required fields are not given." });
+
+    const productImageLocalPaths = req.files?.map((file) => file.path);
+
+    if (!productImageLocalPaths || productImageLocalPaths.length === 0)
+        return res.status(403).json({
+            message:
+                "Something went wrong in finding the local paths of the product images",
+        });
+
+    const productImages = await Promise.all(
+        productImageLocalPaths.map(async (path) => {
+            const uploadedImage = await uploadOnCloudinary(path, "products");
+            return uploadedImage?.url || "";
+        })
+    );
+
+    if (productImages.includes(""))
+        return res.status(403).json({
+            message: "Something went wrong in uploading the product images",
+        });
+
+    const product = await FashionHubProduct.create({
+        name,
+        description,
+        price,
+        stock,
+        category,
+        tags,
+        productImages,
+    });
+
+    if (!product)
+        return res.status(403).json({
+            message: "Something went wrong in creating the new product",
+        });
+
+    const createdProduct = await FashionHubProduct.findById(product._id);
+
+    return res.status(200).json({
+        message: "Fashion hub product created successfully",
+        data: createdProduct,
+    });
+};
+
 module.exports = {
     addProduct,
     getAllProduct,
@@ -244,4 +298,5 @@ module.exports = {
     getProductByCategory,
     getRelatedProduct,
     getMultiRelatedProducts,
+    addProductToFashionHub,
 };
