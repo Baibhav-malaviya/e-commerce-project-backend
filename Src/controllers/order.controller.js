@@ -54,7 +54,7 @@ const getOrder = async (req, res) => {
         },
         {
             $lookup: {
-                from: "products",
+                from: "fashionhubproducts",
                 localField: "product",
                 foreignField: "_id",
                 as: "product",
@@ -85,7 +85,7 @@ const getOrderById = async (req, res) => {
         { $match: { _id: new Types.ObjectId(orderId) } },
         {
             $lookup: {
-                from: "products",
+                from: "fashionhubproducts",
                 localField: "product",
                 foreignField: "_id",
                 as: "product",
@@ -122,7 +122,7 @@ const getCurrentOrder = async (req, res) => {
         },
         {
             $lookup: {
-                from: "products",
+                from: "fashionhubproducts",
                 localField: "product",
                 foreignField: "_id",
                 as: "product",

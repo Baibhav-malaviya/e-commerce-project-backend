@@ -53,20 +53,6 @@ const getCart = async (req, res) => {
     if (!user)
         return res.status(403).json({ message: "You must be logged in." });
 
-    // const carts = await Cart.find({ user: user._id });
-    // const carts = await Cart.aggregate([
-    //     {
-    //         $match: { user: new Types.ObjectId(user._id) },
-    //     },
-    //     {
-    //         $lookup: {
-    //             from: "products",
-    //             localField: "items.product",
-    //             foreignField: "_id",
-    //             as: "items",
-    //         },
-    //     },
-    // ]);
     const carts = await Cart.aggregate([
         {
             $match: { user: new Types.ObjectId(user._id) },
@@ -76,7 +62,7 @@ const getCart = async (req, res) => {
         },
         {
             $lookup: {
-                from: "products",
+                from: "fashionhubproducts",
                 localField: "items.product",
                 foreignField: "_id",
                 as: "product", // save the lookup result in a temporary field
