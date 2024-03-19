@@ -3,6 +3,6 @@ const { runChat } = require("../controllers/chatBot.controller");
 
 const router = Router();
 
-router.route("/").get(runChat);
+router.route("/").post(runChat);
 
 module.exports = router;
