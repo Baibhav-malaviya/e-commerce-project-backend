@@ -12,6 +12,8 @@ const {
     getRelatedProduct,
     getMultiRelatedProducts,
     addProductToFashionHub,
+    getAllFashionHubProducts,
+    getFashionHubProductById,
 } = require("../controllers/product.controller");
 const { upload } = require("../middleware/multer.middleware");
 
@@ -29,12 +31,16 @@ router
 
 router
     .route("/fashionHub")
-    .post(verifyJWT, upload.array("productImages", 4), addProductToFashionHub);
+    .post(verifyJWT, upload.array("productImages", 4), addProductToFashionHub)
+    .get(getAllFashionHubProducts);
 // .get(verifyJWT, getAllFashionHubProduct);
 
 router
     .route("/:id")
     .get(verifyJWT, getProductById)
     .delete(verifyJWT, deleteProductById);
+
+router.route("/fashionHub/:id").get(verifyJWT, getFashionHubProductById);
+// .delete(verifyJWT, deleteProductById);
 
 module.exports = router;

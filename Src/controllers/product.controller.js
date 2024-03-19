@@ -289,6 +289,56 @@ const addProductToFashionHub = async (req, res) => {
     });
 };
 
+const getAllFashionHubProducts = async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+    };
+
+    try {
+        const result = await FashionHubProduct.aggregatePaginate({}, options);
+
+        return res.status(200).json({
+            message: "All the fashion hub products fetched successfully",
+            data: result,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Something went wrong in fetching fashion hub products",
+            error: error.message,
+        });
+    }
+};
+
+const getFashionHubProductById = async (req, res) => {
+    const { id: productId } = req.params;
+
+    if (!productId) {
+        return res.status(400).json({ message: "Product ID is required" });
+    }
+
+    try {
+        const product = await FashionHubProduct.findById(productId);
+
+        if (!product) {
+            return res
+                .status(404)
+                .json({ message: "Fashion hub product not found" });
+        }
+
+        return res.status(200).json({
+            message: "Fashion hub product fetched successfully",
+            data: product,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Something went wrong in fetching the fashion hub product",
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     addProduct,
     getAllProduct,
@@ -299,4 +349,6 @@ module.exports = {
     getRelatedProduct,
     getMultiRelatedProducts,
     addProductToFashionHub,
+    getAllFashionHubProducts,
+    getFashionHubProductById,
 };
